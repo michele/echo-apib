@@ -4,7 +4,7 @@ imports:
 - name: github.com/acsellers/inflections
   version: cb98bfe9e3ee28e8649778f5fbb2e95f54f71b39
 - name: github.com/labstack/echo
-  version: 8d504c1b699c757b267255c53b3e5219f9974abc
+  version: 948d607539e92f3974d8f24951c8975d7342e24a
 - name: github.com/labstack/gommon
   version: 9cedb429ffbe71a32a3ae7c65fd109cb7ae07804
   subpackages:
