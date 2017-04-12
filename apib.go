@@ -74,11 +74,13 @@ func Store() {
 		for uri, rs := range rss {
 
 			f.Write([]byte(fmt.Sprintf("## %s\n\n", uri)))
-			if len(rs.Params) > 0 {
+			if len(rs.Params) > 0 || len(rs.ExtraParams) > 0 {
 				f.Write([]byte(fmt.Sprintf("+ Parameters\n\n")))
-				for k, v := range rs.Params {
-					for _, p := range v {
-						f.Write([]byte(fmt.Sprintf("    + %s: `%s` (string)\n", k, p)))
+				if len(rs.Params) > 0 {
+					for k, v := range rs.Params {
+						for _, p := range v {
+							f.Write([]byte(fmt.Sprintf("    + %s: `%s` (string)\n", k, p)))
+						}
 					}
 				}
 				if len(rs.ExtraParams) > 0 {
