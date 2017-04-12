@@ -64,7 +64,9 @@ func ApibGenerator(next echo.HandlerFunc) echo.HandlerFunc {
 			if rss.Calls == nil {
 				rss.Calls = []Call{}
 				rss.Params = make(map[string][]string)
-				rss.ExtraParams = []Param{}
+			}
+			if rss.ExtraParams == nil {
+				rss.ExtraParams = []*Param{}
 			}
 			rss.Params = request.Params
 			rss.Calls = append(rss.Calls, call)

@@ -16,7 +16,7 @@ var calls = make(map[string]Resources)
 var recording bool
 var currentGroup string
 var currentName string
-var currentParams []Param
+var currentParams []*Param
 
 type Call struct {
 	Group    string
@@ -30,7 +30,7 @@ type Resource struct {
 	URI         string
 	Calls       []Call
 	Params      map[string][]string
-	ExtraParams []Param
+	ExtraParams []*Param
 }
 type Request struct {
 	URI        string
@@ -160,9 +160,9 @@ func Name(name string) {
 
 func AddParam(name string, typ string, ex string, desc string, req bool) {
 	if currentParams == nil {
-		currentParams = []Param{}
+		currentParams = []*Param{}
 	}
-	currentParams = append(currentParams, Param{
+	currentParams = append(currentParams, &Param{
 		Name:        name,
 		Type:        typ,
 		Example:     ex,
@@ -174,8 +174,9 @@ func AddParam(name string, typ string, ex string, desc string, req bool) {
 func Flush() {
 	currentGroup = ""
 	currentName = ""
-	currentParams = []Param{}
+	currentParams = []*Param{}
 }
+
 func params(c echo.Context) map[string]string {
 	params := make(map[string]string)
 
