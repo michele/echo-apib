@@ -2,4 +2,4 @@ package: github.com/michele/echo.apib
 import:
 - package: github.com/acsellers/inflections
 - package: github.com/labstack/echo
-  version: ~3
+  version: 3.0.3
