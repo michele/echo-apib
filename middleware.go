@@ -41,9 +41,9 @@ func ApibGenerator(next echo.HandlerFunc) echo.HandlerFunc {
 				Request: request,
 			}
 			res := c.Response()
-			rw := res.Writer
+			rw := res.Writer()
 			w := NewWriter(rw)
-			c.Response().Writer = w
+			c.Response().SetWriter(w)
 			err := next(c)
 			var response Response
 			if err != nil {
