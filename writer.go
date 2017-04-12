@@ -30,10 +30,6 @@ func (aw *Writer) WriteHeader(code int) {
 	aw.wroteHeader = true
 }
 
-func (aw *Writer) Header() http.Header {
-	return aw.ResponseWriter.Header()
-}
-
 func (aw *Writer) Body() string {
 	return aw.text
 }
