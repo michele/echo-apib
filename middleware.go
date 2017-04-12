@@ -60,20 +60,25 @@ func ApibGenerator(next echo.HandlerFunc) echo.HandlerFunc {
 			if calls[currentGroup] == nil {
 				calls[currentGroup] = Resources{}
 			}
-			rss := calls[currentGroup][request.URI]
-			if rss.Calls == nil {
-				rss.Calls = []Call{}
-				rss.Params = make(map[string][]string)
+			rss := Resource{
+				Params:      request.Params,
+				ExtraParams: currentParams,
+				Call:        call,
 			}
-			if rss.ExtraParams == nil {
-				rss.ExtraParams = []*Param{}
-			}
-			rss.Params = request.Params
-			rss.Calls = append(rss.Calls, call)
-			if len(currentParams) > 0 {
-				rss.ExtraParams = append(rss.ExtraParams, currentParams...)
-			}
-			calls[currentGroup][request.URI] = rss
+			// rss := calls[currentGroup][request.URI]
+			// if rss.Calls == nil {
+			// 	rss.Calls = []Call{}
+			// 	rss.Params = make(map[string][]string)
+			// }
+			// if rss.ExtraParams == nil {
+			// 	rss.ExtraParams = []*Param{}
+			// }
+			// rss.Params = request.Params
+			// rss.Calls = append(rss.Calls, call)
+			// if len(currentParams) > 0 {
+			// 	rss.ExtraParams = append(rss.ExtraParams, currentParams...)
+			// }
+			calls[currentGroup] = append(calls[currentGroup], rss)
 			currentName = ""
 			currentGroup = ""
 			return nil

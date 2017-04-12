@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"log"
+	"net/url"
 	"os"
 	"regexp"
 	"strings"
@@ -25,10 +26,11 @@ type Call struct {
 	Response Response
 }
 
-type Resources map[string]Resource
+type Resources []Resource
 type Resource struct {
+	Name        string
 	URI         string
-	Calls       []Call
+	Call        Call
 	Params      map[string][]string
 	ExtraParams []*Param
 }
@@ -71,67 +73,71 @@ func Store() {
 			log.Fatal("Can't create file.", err)
 		}
 		f.Write([]byte(fmt.Sprintf("# Group %s\n\n", group)))
-		for uri, rs := range rss {
+		for _, rs := range rss {
+			c := rs.Call
 
-			f.Write([]byte(fmt.Sprintf("## %s\n\n", uri)))
+			f.Write([]byte(fmt.Sprintf("## %s [%s %s]\n\n", c.Name, c.Request.Method, c.Request.URI)))
 			if len(rs.Params) > 0 || len(rs.ExtraParams) > 0 {
 				f.Write([]byte(fmt.Sprintf("+ Parameters\n\n")))
 				if len(rs.Params) > 0 {
 					for k, v := range rs.Params {
 						for _, p := range v {
-							f.Write([]byte(fmt.Sprintf("    + %s: `%s` (string)\n", k, p)))
+							f.Write([]byte(fmt.Sprintf("    + %s: `%s` (string)\n", url.QueryEscape(k), p)))
 						}
 					}
 				}
 				if len(rs.ExtraParams) > 0 {
 					for _, p := range rs.ExtraParams {
-						f.Write([]byte(fmt.Sprintf("    + %s: `%s` (%s)\n", p.Name, p.Example, p.Type)))
+						f.Write([]byte(fmt.Sprintf("    + %s: `%s` (%s, optional)\n", url.QueryEscape(p.Name), p.Example, p.Type)))
 						if p.Description != "" {
-							f.Write([]byte(fmt.Sprintf("      %s\n", p.Description)))
+							desc := stringToLines(p.Description)
+							for i, s := range desc {
+								desc[i] = "      " + s + "  \n"
+							}
+							f.Write([]byte(fmt.Sprintf("%s\n", strings.Join(desc, ""))))
 						}
 					}
 				}
 			}
 			f.Write([]byte("\n"))
-			for _, c := range rs.Calls {
 
-				f.Write([]byte(fmt.Sprintf("### %s [%s]\n\n\n", c.Name, c.Request.Method)))
-				f.Write([]byte(fmt.Sprintf("+ Request (%s)\n\n", c.Request.Headers["Content-Type"])))
-				if len(c.Request.Headers) > 0 {
-					f.Write([]byte(fmt.Sprintf("    + Headers\n\n")))
-					for k, v := range c.Request.Headers {
-						f.Write([]byte(fmt.Sprintf("            %s: %s\n", k, v)))
-					}
-					f.Write([]byte("\n"))
-				}
-
-				if len(c.Request.Body) > 0 {
-					f.Write([]byte(fmt.Sprintf("    + Body\n\n")))
-					body := stringToLines(c.Request.Body)
-					for i, s := range body {
-						body[i] = "            " + s
-					}
-					f.Write([]byte(fmt.Sprintf("            \n%s\n            \n\n", strings.Join(body, "\n"))))
-				}
-				f.Write([]byte("\n"))
-				f.Write([]byte(fmt.Sprintf("+ Response %d (%s)\n\n", c.Response.StatusCode, c.Response.Headers["Content-Type"])))
-				if len(c.Response.Headers) > 0 {
-					f.Write([]byte(fmt.Sprintf("    + Headers\n\n")))
-					for k, v := range c.Response.Headers {
-						f.Write([]byte(fmt.Sprintf("            %s: %s\n", k, v)))
-					}
-					f.Write([]byte("\n"))
-				}
-				if len(c.Response.Body) > 0 {
-					f.Write([]byte(fmt.Sprintf("    + Body\n\n")))
-					body := stringToLines(c.Response.Body)
-					for i, s := range body {
-						body[i] = "            " + s
-					}
-					f.Write([]byte(fmt.Sprintf("            \n%s\n            \n\n", strings.Join(body, "\n"))))
+			// f.Write([]byte(fmt.Sprintf("### %s [%s]\n\n\n", c.Name, c.Request.Method)))
+			f.Write([]byte(fmt.Sprintf("+ Request (%s)\n\n", c.Request.Headers["Content-Type"])))
+			if len(c.Request.Headers) > 0 {
+				f.Write([]byte(fmt.Sprintf("    + Headers\n\n")))
+				for k, v := range c.Request.Headers {
+					f.Write([]byte(fmt.Sprintf("            %s: %s\n", k, v)))
 				}
 				f.Write([]byte("\n"))
 			}
+
+			if len(c.Request.Body) > 0 {
+				f.Write([]byte(fmt.Sprintf("    + Body\n\n")))
+				body := stringToLines(c.Request.Body)
+				for i, s := range body {
+					body[i] = "            " + s
+				}
+				f.Write([]byte(fmt.Sprintf("            \n%s\n            \n\n", strings.Join(body, "\n"))))
+			}
+			f.Write([]byte("\n"))
+			f.Write([]byte(fmt.Sprintf("+ Response %d (%s)\n\n", c.Response.StatusCode, c.Response.Headers["Content-Type"])))
+			if len(c.Response.Headers) > 0 {
+				f.Write([]byte(fmt.Sprintf("    + Headers\n\n")))
+				for k, v := range c.Response.Headers {
+					f.Write([]byte(fmt.Sprintf("            %s: %s\n", k, v)))
+				}
+				f.Write([]byte("\n"))
+			}
+			if len(c.Response.Body) > 0 {
+				f.Write([]byte(fmt.Sprintf("    + Body\n\n")))
+				body := stringToLines(c.Response.Body)
+				for i, s := range body {
+					body[i] = "            " + s
+				}
+				f.Write([]byte(fmt.Sprintf("            \n%s\n            \n\n", strings.Join(body, "\n"))))
+			}
+			f.Write([]byte("\n"))
+
 		}
 		f.Close()
 	}
