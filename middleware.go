@@ -46,13 +46,15 @@ func ApibGenerator(next echo.HandlerFunc) echo.HandlerFunc {
 			c.Response().Writer = w
 			err := next(c)
 			var response Response
-			if err == nil {
-				response = Response{
-					Body:       w.Body(),
-					StatusCode: c.Response().Status,
-					Headers:    make(map[string]string),
-				}
+			if err != nil {
+				return err
 			}
+			response = Response{
+				Body:       w.Body(),
+				StatusCode: c.Response().Status,
+				Headers:    make(map[string]string),
+			}
+
 			for k, v := range c.Response().Header() {
 				response.Headers[k] = v[0]
 			}
