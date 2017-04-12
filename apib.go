@@ -16,6 +16,7 @@ var calls = make(map[string]Resources)
 var recording bool
 var currentGroup string
 var currentName string
+var currentParams []Param
 
 type Call struct {
 	Group    string
@@ -26,9 +27,10 @@ type Call struct {
 
 type Resources map[string]Resource
 type Resource struct {
-	URI    string
-	Calls  []Call
-	Params map[string][]string
+	URI         string
+	Calls       []Call
+	Params      map[string][]string
+	ExtraParams []Param
 }
 type Request struct {
 	URI        string
@@ -43,6 +45,14 @@ type Response struct {
 	Headers    map[string]string
 	Body       string
 	StatusCode int
+}
+
+type Param struct {
+	Name        string
+	Example     string
+	Description string
+	Type        string
+	Required    bool
 }
 
 func Record() {
@@ -71,8 +81,16 @@ func Store() {
 						f.Write([]byte(fmt.Sprintf("    + %s: `%s` (string)\n", k, p)))
 					}
 				}
-				f.Write([]byte("\n"))
+				if len(rs.ExtraParams) > 0 {
+					for _, p := range rs.ExtraParams {
+						f.Write([]byte(fmt.Sprintf("    + %s: `%s` (%s)\n", p.Name, p.Example, p.Type)))
+						if p.Description != "" {
+							f.Write([]byte(fmt.Sprintf("      %s\n", p.Description)))
+						}
+					}
+				}
 			}
+			f.Write([]byte("\n"))
 			for _, c := range rs.Calls {
 
 				f.Write([]byte(fmt.Sprintf("### %s [%s]\n\n\n", c.Name, c.Request.Method)))
@@ -140,6 +158,24 @@ func Name(name string) {
 	currentName = name
 }
 
+func AddParam(name string, typ string, ex string, desc string, req bool) {
+	if currentParams == nil {
+		currentParams = []Param{}
+	}
+	currentParams = append(currentParams, Param{
+		Name:        name,
+		Type:        typ,
+		Example:     ex,
+		Description: desc,
+		Required:    req,
+	})
+}
+
+func Flush() {
+	currentGroup = ""
+	currentName = ""
+	currentParams = []Param{}
+}
 func params(c echo.Context) map[string]string {
 	params := make(map[string]string)
 

@@ -34,6 +34,7 @@ func ApibGenerator(next echo.HandlerFunc) echo.HandlerFunc {
 					request.URI = strings.Replace(request.URI, "/"+v, "/{"+k+"}", 1)
 				}
 			}
+
 			call := Call{
 				Group:   currentGroup,
 				Name:    currentName,
@@ -63,9 +64,13 @@ func ApibGenerator(next echo.HandlerFunc) echo.HandlerFunc {
 			if rss.Calls == nil {
 				rss.Calls = []Call{}
 				rss.Params = make(map[string][]string)
+				rss.ExtraParams = []Param{}
 			}
 			rss.Params = request.Params
 			rss.Calls = append(rss.Calls, call)
+			if len(currentParams) > 0 {
+				rss.ExtraParams = append(rss.ExtraParams, currentParams...)
+			}
 			calls[currentGroup][request.URI] = rss
 			currentName = ""
 			currentGroup = ""
