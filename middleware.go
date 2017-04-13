@@ -3,6 +3,7 @@ package apib
 import (
 	"bytes"
 	"io/ioutil"
+	"net/url"
 	"strings"
 
 	"github.com/labstack/echo"
@@ -30,8 +31,14 @@ func ApibGenerator(next echo.HandlerFunc) echo.HandlerFunc {
 
 			if len(params(c)) > 0 {
 				for k, v := range params(c) {
-					request.Params[k] = []string{v}
-					request.URI = strings.Replace(request.URI, "/"+v, "/{"+k+"}", 1)
+					var escaped string
+					if k == "*" { // API Blueprint doesn't allow it as a param name
+						escaped = url.PathEscape("catch_all")
+					} else {
+						escaped = url.PathEscape(k)
+					}
+					request.Params[escaped] = []string{v}
+					request.URI = strings.Replace(request.URI, "/"+v, "/{"+escaped+"}", 1)
 				}
 			}
 
