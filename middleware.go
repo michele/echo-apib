@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io/ioutil"
 	"net/url"
+	"regexp"
 	"strings"
 
 	"github.com/labstack/echo"
@@ -25,8 +26,14 @@ func ApibGenerator(next echo.HandlerFunc) echo.HandlerFunc {
 				request.Headers[k] = v[0]
 			}
 
+			queryParams := []string{}
 			for k, v := range c.QueryParams() {
 				request.Params[k] = v
+				queryParams = append(queryParams, k)
+			}
+			if len(queryParams) > 0 {
+				rx := regexp.MustCompile(`^([^?]+)(\?.+)$`)
+				request.URI = rx.ReplaceAllString(request.URI, "$1{?"+strings.Join(queryParams, ",")+"}")
 			}
 
 			if len(params(c)) > 0 {

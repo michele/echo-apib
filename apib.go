@@ -88,7 +88,11 @@ func Store() {
 				}
 				if len(rs.ExtraParams) > 0 {
 					for _, p := range rs.ExtraParams {
-						f.Write([]byte(fmt.Sprintf("    + %s: `%s` (%s, optional)\n", url.QueryEscape(p.Name), p.Example, p.Type)))
+						required := "optional"
+						if p.Required {
+							required = "required"
+						}
+						f.Write([]byte(fmt.Sprintf("    + %s: `%s` (%s, "+required+")\n", url.QueryEscape(p.Name), p.Example, p.Type)))
 						if p.Description != "" {
 							desc := stringToLines(p.Description)
 							for i, s := range desc {
