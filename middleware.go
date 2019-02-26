@@ -7,7 +7,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 func ApibGenerator(next echo.HandlerFunc) echo.HandlerFunc {

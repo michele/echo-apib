@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/acsellers/inflections"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 var calls = make(map[string]Resources)
