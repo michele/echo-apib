@@ -33,6 +33,7 @@ type Resource struct {
 	Call        Call
 	Params      map[string][]string
 	ExtraParams []*Param
+	Attributes  map[string]string
 }
 type Request struct {
 	URI        string
@@ -41,6 +42,7 @@ type Request struct {
 	Params     map[string][]string
 	Body       string
 	PathParams map[string]string
+	FormParams map[string]string
 }
 
 type Response struct {
@@ -101,6 +103,12 @@ func Store() {
 							f.Write([]byte(fmt.Sprintf("%s\n", strings.Join(desc, ""))))
 						}
 					}
+				}
+			}
+			if len(rs.Attributes) > 0 {
+				f.Write([]byte(fmt.Sprintf("+ Attributes\n\n")))
+				for k, v := range rs.Attributes {
+					f.Write([]byte(fmt.Sprintf("    + %s: `%s` (string)\n", url.QueryEscape(k), v)))
 				}
 			}
 			f.Write([]byte("\n"))

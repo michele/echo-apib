@@ -16,11 +16,12 @@ func ApibGenerator(next echo.HandlerFunc) echo.HandlerFunc {
 			bodyBytes, _ := ioutil.ReadAll(c.Request().Body)
 			c.Request().Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
 			request := Request{
-				URI:     c.Request().URL.RequestURI(),
-				Method:  c.Request().Method,
-				Body:    string(bodyBytes),
-				Headers: make(map[string]string),
-				Params:  make(map[string][]string),
+				URI:        c.Request().URL.RequestURI(),
+				Method:     c.Request().Method,
+				Body:       string(bodyBytes),
+				Headers:    make(map[string]string),
+				Params:     make(map[string][]string),
+				FormParams: make(map[string]string),
 			}
 			for k, v := range c.Request().Header {
 				request.Headers[k] = v[0]
@@ -34,6 +35,10 @@ func ApibGenerator(next echo.HandlerFunc) echo.HandlerFunc {
 			if len(queryParams) > 0 {
 				rx := regexp.MustCompile(`^([^?]+)(\?.+)$`)
 				request.URI = rx.ReplaceAllString(request.URI, "$1{?"+strings.Join(queryParams, ",")+"}")
+			}
+
+			for k, v := range c.Request().Form {
+				request.FormParams[k] = v[0]
 			}
 
 			if len(params(c)) > 0 {
@@ -80,6 +85,7 @@ func ApibGenerator(next echo.HandlerFunc) echo.HandlerFunc {
 				Params:      request.Params,
 				ExtraParams: currentParams,
 				Call:        call,
+				Attributes:  request.FormParams,
 			}
 			// rss := calls[currentGroup][request.URI]
 			// if rss.Calls == nil {
