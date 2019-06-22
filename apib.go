@@ -139,6 +139,9 @@ func Store() {
 			if len(c.Response.Headers) > 0 {
 				f.Write([]byte(fmt.Sprintf("    + Headers\n\n")))
 				for k, v := range c.Response.Headers {
+					if k == "Content-Type" {
+						continue
+					}
 					f.Write([]byte(fmt.Sprintf("            %s: %s\n", k, v)))
 				}
 				f.Write([]byte("\n"))
